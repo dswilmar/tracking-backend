@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCo
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('events')
 export class EventsController {
@@ -26,5 +27,17 @@ export class EventsController {
   @Delete(':id')
   remove(@Param('id', new ParseIntPipe()) id: number) {
     return this.eventsService.remove(id);
+  }
+
+  @MessagePattern('tracking')
+  async createFromTMS(@Payload() message:any) {
+    console.log('Executou aqui');
+    await this.eventsService.create({
+      code: message.code,
+      eventDate: message.date,
+      local: message.local,
+      description: message.description,
+      coordinates: ''
+    });
   }
 }
